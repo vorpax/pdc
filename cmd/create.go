@@ -6,7 +6,9 @@ package cmd
 import (
 	"fmt"
 	"net/url"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -49,22 +51,36 @@ func init() {
 func createTemplate(unparsed_url string) {
 	parsed_url, err := url.Parse(unparsed_url)
 
-	if unparsed_url == "" {
-		fmt.Println("Error: URL cannot be empty")
-		return
-	}
-
 	if err != nil {
-		fmt.Println("Error parsing URL:", err)
+
+	}
+
+	download_template(parsed_url)
+}
+
+func download_template(parsed_url *url.URL) (download_path string, err string) {
+	filename := parsed_url.Path[strings.LastIndex(parsed_url.Path, "/")+1:]
+
+	// Utiliser le répertoire courant de travail
+	wd, wd_err := os.Getwd()
+
+	if wd_err != nil {
+
+		fmt.Println("Error getting working directory:", err)
 		return
 	}
 
-	filename := parsed_url.Path[strings.LastIndex(parsed_url.Path, "/")+1:]
-	download_path := "./data/" + filename
+	download_path = filepath.Join(wd, "data", filename)
 
-	command := exec.Command("curl", "-o", download_path, unparsed_url)
-	fmt.Println(command)
+	fmt.Printf("Filename: %s\n", filename)
+	fmt.Printf("Download path: %s\n", download_path)
+
+	command := exec.Command("curl", "-o", download_path, parsed_url.String())
+	fmt.Println("Command:", command)
+
 	if err := command.Run(); err != nil {
 		fmt.Println("Error:", err)
 	}
+
+	return download_path, err
 }
