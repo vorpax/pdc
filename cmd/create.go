@@ -58,10 +58,13 @@ func createTemplate(unparsed_url string) {
 		fmt.Println("Error parsing URL:", err)
 		return
 	}
-	path := strings.Split(parsed_url.Path, "/")
-	filename := path[len(path)-1]
-	download_path := strings.Join([]string{"./data/", filename}, "")
+
+	filename := parsed_url.Path[strings.LastIndex(parsed_url.Path, "/")+1:]
+	download_path := "./data/" + filename
+
 	command := exec.Command("curl", "-o", download_path, unparsed_url)
 	fmt.Println(command)
-	fmt.Println(command)
+	if err := command.Run(); err != nil {
+		fmt.Println("Error:", err)
+	}
 }
