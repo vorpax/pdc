@@ -1,0 +1,5 @@
+
+.qcow2
+.idea
+/scripts/go/eztemplate/build__remote__linux
+/data/generic_alpine-3.22.2-x86_64-bios-cloudinit-r0.qcow2
