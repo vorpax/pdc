@@ -12,29 +12,32 @@ import (
 	"github.com/melbahja/goph"
 )
 
+// Cmd interface represents both os/exec.Cmd and goph.Cmd
+type Cmd interface {
+	Run() error
+	CombinedOutput() ([]byte, error)
+	Output() ([]byte, error)
+	Start() error
+	Wait() error
+	// String() ([]byte, error)
+}
+
 type CommandRunner interface {
-	Run(command string, args ...string) (string, error)
+	Command(command string, args ...string) (Cmd, error)
 }
 
 type LocalRunner struct{}
 
-func (lr *LocalRunner) Run(command string, args ...string) (string, error) {
-	cmd := exec.Command(command, args...)
-	output, err := cmd.CombinedOutput()
-	return string(output), err
+func (lr *LocalRunner) Command(command string, args ...string) (Cmd, error) {
+	return exec.Command(command, args...), nil
 }
 
 type RemoteRunner struct {
 	client *goph.Client
 }
 
-func (rr *RemoteRunner) Run(command string, args ...string) (string, error) {
-	fullCommand := command
-	if len(args) > 0 {
-		fullCommand += " " + strings.Join(args, " ")
-	}
-	output, err := rr.client.Run(fullCommand)
-	return string(output), err
+func (rr *RemoteRunner) Command(command string, args ...string) (Cmd, error) {
+	return rr.client.Command(command, args...)
 }
 
 func CreateTemplate(unparsedUrl string) {
