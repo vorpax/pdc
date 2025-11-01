@@ -35,18 +35,11 @@ Example:
 
 func init() {
 	rootCmd.AddCommand(destroyCmd)
-	destroyCmd.Flags().String("vm-id", "", "The unique ID for the new VM/template")
+	destroyCmd.Flags().String("vm-id", "", "The unique ID of the VM/template to destroy")
 	viper.BindPFlag("vm.id", destroyCmd.Flags().Lookup("vm-id"))
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// destroyCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// destroyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// Mark vm-id as required
+	destroyCmd.MarkFlagRequired("vm-id")
 }
 
 func destroyTemplate(vmId, proxmoxHost, proxmoxUser, proxmoxSSHKey string, verbose bool) error {
