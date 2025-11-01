@@ -1,7 +1,35 @@
+# Build artifacts
+pdc
+build/
+dist/
 
-.qcow2
+
+# Cloud images
+*.qcow2
+*.img
+
+# IDE
 .idea
+.vscode
+
+# Configuration files (may contain sensitive info)
+config.yaml
+config.json
+
+# SSH keys
+*.pem
+*.key
+id_rsa
+id_ed25519
+
+# Environment files
+.env
+.env.local
+
+# Demo/recording files
+*.gif
+*.rec
+
+# Old paths
 /scripts/go/eztemplate/build__remote__linux
-/data/generic_alpine-3.22.2-x86_64-bios-cloudinit-r0.qcow2
-create.gif
-create.rec
+/data/
