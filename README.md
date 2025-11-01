@@ -6,7 +6,7 @@ PDC automates the creation and management of cloud-init ready VM templates on Pr
 
 ## Demo
 
-![demo](https://vhs.charm.sh/vhs-5ykE7QUyezexlKTgWClu3B.gif))
+![demo](https://vhs.charm.sh/vhs-5ykE7QUyezexlKTgWClu3B.gif)
 
 ## Features
 
