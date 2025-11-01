@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/melbahja/goph"
 )
@@ -57,7 +56,7 @@ func CreateTemplate(unparsedUrl string) {
 }
 
 func downloadTemplate(parsedUrl *url.URL, execContext CommandRunner) (downloadPath string, err string) {
-	filename := parsedUrl.Path[strings.LastIndex(parsedUrl.Path, "/")+1:]
+	filename := filepath.Base(parsedUrl.Path)
 
 	// Utiliser le répertoire courant de travail
 	wd, wdErr := os.Getwd()
