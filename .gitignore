@@ -34,4 +34,6 @@ id_ed25519
 /scripts/go/eztemplate/build__remote__linux
 /data/
 internal/test.go
+*.sh
+*memo.md
 utils/template.sh

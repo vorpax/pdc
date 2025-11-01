@@ -1,8 +1,12 @@
 # PDC - Proxmox Direct Config
 
-A sweet CLI tool for managing Proxmox VE config with ease. 
+A sweet CLI tool for managing Proxmox VE config with ease.
 
 PDC automates the creation and management of cloud-init ready VM templates on Proxmox VE hosts via SSH.
+
+## Demo
+
+![PDC Demo](demo.gif)
 
 ## Features
 

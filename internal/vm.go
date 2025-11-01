@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/melbahja/goph"
 )
@@ -146,6 +147,10 @@ func createVm(vmId string, memory string, cpuCores string, vmName string, networ
 	cmd, err := runner.Command("/usr/sbin/qm", vmCreationArgs...)
 	if err != nil {
 		return "", fmt.Errorf("error creating vm command: %w", err)
+	}
+
+	if verbose {
+		fmt.Println(VerboseStyle.Render(fmt.Sprintf("Executing command: curl %s", strings.Join(vmCreationArgs, " "))))
 	}
 
 	output, err := cmd.CombinedOutput()
