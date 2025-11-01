@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -57,10 +58,14 @@ func initConfig() {
 	viper.AddConfigPath("$HOME/.proxmox-direct-config") // call multiple times to add many search paths
 	viper.AddConfigPath(".")
 
-	viper.AutomaticEnv() // read in environment variables that match
-
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
+
+	// Set environment variable prefix and key replacer
+	// This must come AFTER ReadInConfig so flags take precedence
+	viper.SetEnvPrefix("PDC")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
+	viper.AutomaticEnv() // read in environment variables that match
 }

@@ -22,38 +22,56 @@ and converts it into a template for future use.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		imageUrl := args[0]
 
+		// Helper to get value from flag (flat key) or config (nested key)
+		getConfig := func(flagKey, configKey string) string {
+			if val := viper.GetString(flagKey); val != "" {
+				return val
+			}
+			return viper.GetString(configKey)
+		}
+
+		vmId := getConfig("vm-id", "vm.id")
+		vmName := getConfig("vm-name", "vm.name")
+		memory := getConfig("memory", "vm.memory")
+		cores := getConfig("cores", "vm.cores")
+		storage := getConfig("storage", "proxmox.storage")
+		diskSize := getConfig("disk-size", "vm.disk_size")
+		ciUser := getConfig("ci-user", "proxmox.ci_user")
+		sshKeyFile := getConfig("ssh-key-file", "proxmox.ssh_key_file")
+		bridge := getConfig("bridge", "proxmox.bridge")
+		save := viper.GetBool("save") || viper.GetBool("config.save")
+
 		err := internal.CreateTemplate(
-			viper.GetString("vm.id"),
-			viper.GetString("vm.name"),
-			viper.GetString("vm.memory"),
-			viper.GetString("vm.cores"),
-			viper.GetString("proxmox.storage"),
-			viper.GetString("vm.disk_size"),
-			viper.GetString("proxmox.ci_user"),
-			viper.GetString("proxmox.ssh_key_file"),
+			vmId,
+			vmName,
+			memory,
+			cores,
+			storage,
+			diskSize,
+			ciUser,
+			sshKeyFile,
 			imageUrl,
-			viper.GetString("proxmox.bridge"),
+			bridge,
 			viper.GetString("proxmox.host"),
 			viper.GetString("proxmox.user"),
 			viper.GetString("proxmox.ssh_key"),
 			viper.GetBool("verbose"),
 		)
 
-		if viper.GetBool("config.save") {
+		if save {
 			internal.SaveTemplateConfig(
-				viper.GetString("vm.id"),
-				viper.GetString("vm.name"),
-				viper.GetString("vm.memory"),
-				viper.GetString("vm.cores"),
-				viper.GetString("proxmox.storage"),
-				viper.GetString("vm.disk_size"),
-				viper.GetString("proxmox.ci_user"),
-				viper.GetString("proxmox.ssh_key_file"),
+				vmId,
+				vmName,
+				memory,
+				cores,
+				storage,
+				diskSize,
+				ciUser,
+				sshKeyFile,
 				imageUrl,
-				viper.GetString("proxmox.bridge"),
+				bridge,
 				viper.GetBool("verbose"),
 			)
-
 		}
 
 		if err != nil {
@@ -63,38 +81,31 @@ and converts it into a template for future use.`,
 }
 
 func init() {
-
 	TemplateCmd.AddCommand(createCmd)
-	// Define flags and bind them to Viper
+
+	// Define flags
 	createCmd.Flags().String("vm-id", "", "The unique ID for the new VM/template")
-	viper.BindPFlag("vm.id", createCmd.Flags().Lookup("vm-id"))
-
 	createCmd.Flags().String("vm-name", "", "Name for the new VM/template")
-	viper.BindPFlag("vm.name", createCmd.Flags().Lookup("vm-name"))
-
 	createCmd.Flags().String("memory", "2048", "Memory for the VM in MB")
-	viper.BindPFlag("vm.memory", createCmd.Flags().Lookup("memory"))
-
 	createCmd.Flags().String("cores", "2", "Number of CPU cores for the VM")
-	viper.BindPFlag("vm.cores", createCmd.Flags().Lookup("cores"))
-
 	createCmd.Flags().String("storage", "", "Proxmox storage pool to use")
-	viper.BindPFlag("proxmox.storage", createCmd.Flags().Lookup("storage"))
-
 	createCmd.Flags().String("disk-size", "32", "Disk size for the VM in GB")
-	viper.BindPFlag("vm.disk_size", createCmd.Flags().Lookup("disk-size"))
-
 	createCmd.Flags().String("ci-user", "", "Cloud-init username")
-	viper.BindPFlag("proxmox.ci_user", createCmd.Flags().Lookup("ci-user"))
-
 	createCmd.Flags().String("ssh-key-file", "", "Path on the Proxmox host to the public SSH key file")
-	viper.BindPFlag("proxmox.ssh_key_file", createCmd.Flags().Lookup("ssh-key-file"))
-
 	createCmd.Flags().String("bridge", "vmbr0", "Proxmox network bridge")
-	viper.BindPFlag("proxmox.bridge", createCmd.Flags().Lookup("bridge"))
-
 	createCmd.Flags().Bool("save", false, "Save the VM configuration to the config file after creation")
-	viper.BindPFlag("config.save", createCmd.Flags().Lookup("save"))
+
+	// Bind flags to Viper - use flat keys to avoid nested key issues with config file
+	viper.BindPFlag("vm-id", createCmd.Flags().Lookup("vm-id"))
+	viper.BindPFlag("vm-name", createCmd.Flags().Lookup("vm-name"))
+	viper.BindPFlag("memory", createCmd.Flags().Lookup("memory"))
+	viper.BindPFlag("cores", createCmd.Flags().Lookup("cores"))
+	viper.BindPFlag("storage", createCmd.Flags().Lookup("storage"))
+	viper.BindPFlag("disk-size", createCmd.Flags().Lookup("disk-size"))
+	viper.BindPFlag("ci-user", createCmd.Flags().Lookup("ci-user"))
+	viper.BindPFlag("ssh-key-file", createCmd.Flags().Lookup("ssh-key-file"))
+	viper.BindPFlag("bridge", createCmd.Flags().Lookup("bridge"))
+	viper.BindPFlag("save", createCmd.Flags().Lookup("save"))
 
 	// Mark essential flags as required
 	createCmd.MarkFlagRequired("vm-id")
