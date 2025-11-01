@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"os"
 	"os/exec"
 	"path/filepath"
 
@@ -39,20 +38,86 @@ func (rr *RemoteRunner) Command(command string, args ...string) (Cmd, error) {
 	return rr.client.Command(command, args...)
 }
 
-func CreateTemplate(unparsedUrl string) {
-	if unparsedUrl == "" {
-		unparsedUrl = "https://example.com/template.qcow2"
-	}
+func CreateTemplate(vmId, vmName, memory, cpuCores, storagePool, diskSize, ciUser, sshKeyPath, imageUrl, networkBridge string, verbose bool) error {
+	fmt.Println(InfoStyle.Render("Starting template creation process..."))
 
-	parsedUrl, err := url.Parse(unparsedUrl)
-
+	runner, err := createRunner(true) // Always use remote runner for this process
 	if err != nil {
-		fmt.Printf("Error parsing URL: %s\n", err)
-	} else {
-		fmt.Printf("Parsed URL: %s\n", parsedUrl.String())
+		return fmt.Errorf("failed to connect to Proxmox host: %w", err)
 	}
 
-	downloadTemplate(parsedUrl, nil)
+	parsedUrl, err := url.Parse(imageUrl)
+	if err != nil {
+		return fmt.Errorf("invalid image URL: %w", err)
+	}
+
+	fmt.Printf("Downloading image from %s on Proxmox host...\n", imageUrl)
+	imagePath, output, err := downloadTemplate(parsedUrl, runner, verbose)
+	if err != nil {
+		return fmt.Errorf("failed to download template image: %w", err)
+	}
+	if verbose {
+		fmt.Println(VerboseStyle.Render(output))
+	}
+
+	output, err = createVm(vmId, memory, cpuCores, vmName, networkBridge, runner, verbose)
+	if err != nil {
+		return err
+	}
+	if verbose {
+		fmt.Println(VerboseStyle.Render(output))
+	}
+
+	output, err = importDisk(runner, vmId, imagePath, storagePool, verbose)
+	if err != nil {
+		return err
+	}
+	if verbose {
+		fmt.Println(VerboseStyle.Render(output))
+	}
+
+	output, err = attachDisk(runner, vmId, storagePool, verbose)
+	if err != nil {
+		return err
+	}
+	if verbose {
+		fmt.Println(VerboseStyle.Render(output))
+	}
+
+	output, err = resizeDisk(runner, vmId, diskSize, verbose)
+	if err != nil {
+		return err
+	}
+	if verbose {
+		fmt.Println(VerboseStyle.Render(output))
+	}
+
+	output, err = configureCloudInit(runner, vmId, storagePool, verbose)
+	if err != nil {
+		return err
+	}
+	if verbose {
+		fmt.Println(VerboseStyle.Render(output))
+	}
+
+	output, err = configureNetwork(runner, vmId, verbose)
+	if err != nil {
+		return err
+	}
+	if verbose {
+		fmt.Println(VerboseStyle.Render(output))
+	}
+
+	output, err = configureUser(runner, vmId, ciUser, sshKeyPath, verbose)
+	if err != nil {
+		return err
+	}
+	if verbose {
+		fmt.Println(VerboseStyle.Render(output))
+	}
+
+	fmt.Println(SuccessStyle.Render("Template creation process completed successfully!"))
+	return nil
 }
 
 func downloadTemplate(parsedUrl *url.URL, execContext CommandRunner) (downloadPath string, err string) {
