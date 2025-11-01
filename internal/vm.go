@@ -140,122 +140,121 @@ func downloadTemplate(parsedUrl *url.URL, execContext CommandRunner, verbose boo
 	return downloadPath, string(output), nil
 }
 
-func createVm(vmId string, memory string, cpuCores string, vmName string, networkBridge string, runner CommandRunner) error {
-
+func createVm(vmId string, memory string, cpuCores string, vmName string, networkBridge string, runner CommandRunner, verbose bool) (string, error) {
 	vmCreationArgs := []string{"create", vmId, "--memory", memory, "--core", cpuCores, "--name", vmName, "--net0", "virtio"}
 
 	cmd, err := runner.Command("/usr/sbin/qm", vmCreationArgs...)
 	if err != nil {
-		return fmt.Errorf("error creating vm command: %w", err)
+		return "", fmt.Errorf("error creating vm command: %w", err)
 	}
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("error running create vm command: %w. Output: %s", err, string(output))
+		return string(output), fmt.Errorf("error running create vm command: %w", err)
 	}
 
-	fmt.Printf("VM %s created successfully.", vmId)
-	return nil
+	fmt.Println(InfoStyle.Render(fmt.Sprintf("VM %s created successfully.", vmId)))
+	return string(output), nil
 }
 
-func importDisk(runner CommandRunner, vmId string, imagePath string, storagePool string) error {
+func importDisk(runner CommandRunner, vmId string, imagePath string, storagePool string, verbose bool) (string, error) {
 	args := []string{"disk", "import", vmId, imagePath, storagePool}
 	cmd, err := runner.Command("/usr/sbin/qm", args...)
 	if err != nil {
-		return fmt.Errorf("error creating import disk command: %w", err)
+		return "", fmt.Errorf("error creating import disk command: %w", err)
 	}
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("error running import disk command: %w. Output: %s", err, string(output))
+		return string(output), fmt.Errorf("error running import disk command: %w", err)
 	}
 
-	fmt.Printf("Disk %s imported to VM %s on storage %s.", imagePath, vmId, storagePool)
-	return nil
+	fmt.Println(InfoStyle.Render(fmt.Sprintf("Disk %s imported to VM %s on storage %s.", imagePath, vmId, storagePool)))
+	return string(output), nil
 }
 
-func attachDisk(runner CommandRunner, vmId string, storagePool string) error {
+func attachDisk(runner CommandRunner, vmId string, storagePool string, verbose bool) (string, error) {
 	scsiDevice := fmt.Sprintf("%s:vm-%s-disk-0", storagePool, vmId)
 	args := []string{"set", vmId, "--scsihw", "virtio-scsi-pci", "--scsi0", scsiDevice}
 	cmd, err := runner.Command("/usr/sbin/qm", args...)
 	if err != nil {
-		return fmt.Errorf("error creating attach disk command: %w", err)
+		return "", fmt.Errorf("error creating attach disk command: %w", err)
 	}
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("error running attach disk command: %w. Output: %s", err, string(output))
+		return string(output), fmt.Errorf("error running attach disk command: %w", err)
 	}
 
-	fmt.Printf("Disk attached to VM %s as scsi0.", vmId)
-	return nil
+	fmt.Println(InfoStyle.Render(fmt.Sprintf("Disk attached to VM %s as scsi0.", vmId)))
+	return string(output), nil
 }
 
-func resizeDisk(runner CommandRunner, vmId string, diskSize string) error {
+func resizeDisk(runner CommandRunner, vmId string, diskSize string, verbose bool) (string, error) {
 	size := fmt.Sprintf("%sG", diskSize)
 	args := []string{"resize", vmId, "scsi0", size}
 	cmd, err := runner.Command("/usr/sbin/qm", args...)
 	if err != nil {
-		return fmt.Errorf("error creating resize disk command: %w", err)
+		return "", fmt.Errorf("error creating resize disk command: %w", err)
 	}
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("error running resize disk command: %w. Output: %s", err, string(output))
+		return string(output), fmt.Errorf("error running resize disk command: %w", err)
 	}
 
-	fmt.Printf("Disk resized for VM %s to %s.", vmId, size)
-	return nil
+	fmt.Println(InfoStyle.Render(fmt.Sprintf("Disk resized for VM %s to %s.", vmId, size)))
+	return string(output), nil
 }
 
-func configureCloudInit(runner CommandRunner, vmId string, storagePool string) error {
+func configureCloudInit(runner CommandRunner, vmId string, storagePool string, verbose bool) (string, error) {
 	cloudInitDevice := fmt.Sprintf("%s:cloudinit", storagePool)
 	args := []string{"set", vmId, "--ide2", cloudInitDevice, "--bootdisk", "scsi0", "--serial0", "socket", "--vga", "serial0"}
 	cmd, err := runner.Command("/usr/sbin/qm", args...)
 	if err != nil {
-		return fmt.Errorf("error creating cloud-init config command: %w", err)
+		return "", fmt.Errorf("error creating cloud-init config command: %w", err)
 	}
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("error running cloud-init config command: %w. Output: %s", err, string(output))
+		return string(output), fmt.Errorf("error running cloud-init config command: %w", err)
 	}
 
-	fmt.Printf("Cloud-init configured for VM %s.", vmId)
-	return nil
+	fmt.Println(InfoStyle.Render(fmt.Sprintf("Cloud-init configured for VM %s.", vmId)))
+	return string(output), nil
 }
 
-func configureNetwork(runner CommandRunner, vmId string) error {
+func configureNetwork(runner CommandRunner, vmId string, verbose bool) (string, error) {
 	args := []string{"set", vmId, "--ipconfig0", "ip=dhcp"}
 	cmd, err := runner.Command("/usr/sbin/qm", args...)
 	if err != nil {
-		return fmt.Errorf("error creating network config command: %w", err)
+		return "", fmt.Errorf("error creating network config command: %w", err)
 	}
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("error running network config command: %w. Output: %s", err, string(output))
+		return string(output), fmt.Errorf("error running network config command: %w", err)
 	}
 
-	fmt.Printf("Network configured for VM %s.", vmId)
-	return nil
+	fmt.Println(InfoStyle.Render(fmt.Sprintf("Network configured for VM %s.", vmId)))
+	return string(output), nil
 }
 
-func configureUser(runner CommandRunner, vmId string, user string, sshKeyPath string) error {
+func configureUser(runner CommandRunner, vmId string, user string, sshKeyPath string, verbose bool) (string, error) {
 	// This assumes the key path is accessible from the Proxmox host.
 	args := []string{"set", vmId, "--ciuser", user, "--sshkeys", sshKeyPath}
 	cmd, err := runner.Command("/usr/sbin/qm", args...)
 	if err != nil {
-		return fmt.Errorf("error creating user config command: %w", err)
+		return "", fmt.Errorf("error creating user config command: %w", err)
 	}
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("error running user config command: %w. Output: %s", err, string(output))
+		return string(output), fmt.Errorf("error running user config command: %w", err)
 	}
 
-	fmt.Printf("User and SSH keys configured for VM %s.", vmId)
-	return nil
+	fmt.Println(InfoStyle.Render(fmt.Sprintf("User and SSH keys configured for VM %s.", vmId)))
+	return string(output), nil
 }
 func connectHostSSH() (CommandRunner, error) {
 	auth, err := goph.Key("/Users/vorpax/.ssh/id_ed25519", "")
@@ -303,5 +302,30 @@ func TestCode() {
 		fmt.Printf("Hostname : %s\n", string(output))
 	}
 
-	createVm("1001", "2048", "2", "test-vm", "vmbr0", runner)
+	// createVm("1001", "2048", "2", "test-vm", "vmbr0", runner)
+}
+
+func DestroyVm(vmId string, verbose bool) (string, error) {
+
+	runner, err := createRunner(true) // Always use remote runner for this process
+	if err != nil {
+		return "", fmt.Errorf("failed to connect to Proxmox host: %w", err)
+	}
+
+	args := []string{"destroy", vmId}
+	cmd, err := runner.Command("/usr/sbin/qm", args...)
+	if err != nil {
+		return "", fmt.Errorf("error creating destroy command: %w", err)
+	}
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return string(output), fmt.Errorf("error running destroy command: %w", err)
+	}
+
+	fmt.Println(VerboseStyle.Render(fmt.Sprintf("Destroying VM %s...", vmId)))
+	fmt.Println(VerboseStyle.Render(fmt.Sprintf("destroy command output: *", output)))
+
+	fmt.Println(InfoStyle.Render(fmt.Sprintf("VM %s destroyed.", vmId)))
+	return string(output), nil
 }
