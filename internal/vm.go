@@ -38,10 +38,10 @@ func (rr *RemoteRunner) Command(command string, args ...string) (Cmd, error) {
 	return rr.client.Command(command, args...)
 }
 
-func CreateTemplate(vmId, vmName, memory, cpuCores, storagePool, diskSize, ciUser, sshKeyPath, imageUrl, networkBridge string, verbose bool) error {
+func CreateTemplate(vmId, vmName, memory, cpuCores, storagePool, diskSize, ciUser, sshKeyPath, imageUrl, networkBridge, proxmoxHost, proxmoxUser, proxmoxSSHKey string, verbose bool) error {
 	fmt.Println(InfoStyle.Render("Starting template creation process..."))
 
-	runner, err := createRunner(true) // Always use remote runner for this process
+	runner, err := createRunner(true, proxmoxHost, proxmoxUser, proxmoxSSHKey) // Always use remote runner for this process
 	if err != nil {
 		return fmt.Errorf("failed to connect to Proxmox host: %w", err)
 	}
@@ -256,24 +256,30 @@ func configureUser(runner CommandRunner, vmId string, user string, sshKeyPath st
 	fmt.Println(InfoStyle.Render(fmt.Sprintf("User and SSH keys configured for VM %s.", vmId)))
 	return string(output), nil
 }
-func connectHostSSH() (CommandRunner, error) {
-	auth, err := goph.Key("/Users/vorpax/.ssh/id_ed25519", "")
-	if err != nil {
-		return nil, err
+func connectHostSSH(host, user, sshKeyPath string) (CommandRunner, error) {
+	if host == "" {
+		return nil, fmt.Errorf("proxmox host is required (use --proxmox-host flag or set proxmox.host in config)")
+	}
+	if sshKeyPath == "" {
+		return nil, fmt.Errorf("ssh key path is required (use --ssh-key flag or set proxmox.ssh_key in config)")
 	}
 
-	client, err := goph.New("root", "mini-homelab", auth)
+	auth, err := goph.Key(sshKeyPath, "")
 	if err != nil {
-		log.Printf("%s", err.Error())
-		log.Fatal(err)
+		return nil, fmt.Errorf("failed to load SSH key from %s: %w", sshKeyPath, err)
+	}
+
+	client, err := goph.New(user, host, auth)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to %s@%s: %w", user, host, err)
 	}
 
 	return &RemoteRunner{client: client}, nil
 }
 
-func createRunner(useRemote bool) (CommandRunner, error) {
+func createRunner(useRemote bool, host, user, sshKeyPath string) (CommandRunner, error) {
 	if useRemote {
-		return connectHostSSH()
+		return connectHostSSH(host, user, sshKeyPath)
 	}
 	return &LocalRunner{}, nil
 }
@@ -305,9 +311,9 @@ func TestCode() {
 	// createVm("1001", "2048", "2", "test-vm", "vmbr0", runner)
 }
 
-func DestroyVm(vmId string, verbose bool) (string, error) {
+func DestroyVm(vmId, proxmoxHost, proxmoxUser, proxmoxSSHKey string, verbose bool) (string, error) {
 
-	runner, err := createRunner(true) // Always use remote runner for this process
+	runner, err := createRunner(true, proxmoxHost, proxmoxUser, proxmoxSSHKey) // Always use remote runner for this process
 	if err != nil {
 		return "", fmt.Errorf("failed to connect to Proxmox host: %w", err)
 	}

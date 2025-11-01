@@ -38,6 +38,15 @@ func init() {
 	// Add a verbose flag
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Enable verbose output")
 	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
+
+	rootCmd.PersistentFlags().String("proxmox-host", "", "Proxmox host address")
+	viper.BindPFlag("proxmox.host", rootCmd.PersistentFlags().Lookup("proxmox-host"))
+
+	rootCmd.PersistentFlags().String("proxmox-user", "root", "Proxmox SSH user")
+	viper.BindPFlag("proxmox.user", rootCmd.PersistentFlags().Lookup("proxmox-user"))
+
+	rootCmd.PersistentFlags().String("ssh-key", "", "Path to SSH private key for Proxmox connection")
+	viper.BindPFlag("proxmox.ssh_key", rootCmd.PersistentFlags().Lookup("ssh-key"))
 }
 
 // initConfig reads in config file and ENV variables if set.

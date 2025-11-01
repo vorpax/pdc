@@ -24,6 +24,9 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		destroyTemplate(
 			viper.GetString("vm.id"),
+			viper.GetString("proxmox.host"),
+			viper.GetString("proxmox.user"),
+			viper.GetString("proxmox.ssh_key"),
 			viper.GetBool("verbose"),
 		)
 	},
@@ -45,8 +48,8 @@ func init() {
 	// destroyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func destroyTemplate(vmId string, verbose bool) error {
-	internal.DestroyVm(vmId, verbose)
+func destroyTemplate(vmId, proxmoxHost, proxmoxUser, proxmoxSSHKey string, verbose bool) error {
+	internal.DestroyVm(vmId, proxmoxHost, proxmoxUser, proxmoxSSHKey, verbose)
 
 	return nil
 }
