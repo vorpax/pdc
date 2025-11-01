@@ -74,11 +74,19 @@ func downloadTemplate(parsedUrl *url.URL, execContext CommandRunner) (downloadPa
 	fmt.Printf("Download path: %s\n", downloadPath)
 
 	args := []string{"-o", downloadPath, parsedUrl.String()}
-	command, runErr := execContext.Run("curl", args...)
-	fmt.Println("Command:", command)
+	cmd, cmdErr := execContext.Command("curl", args...)
+
+	if cmdErr != nil {
+		fmt.Println("Error creating command:", cmdErr)
+		return downloadPath, cmdErr.Error()
+	}
+
+	output, runErr := cmd.CombinedOutput()
+	fmt.Println("Command output:", string(output))
 
 	if runErr != nil {
-		fmt.Println("Error:", err)
+		fmt.Println("Error:", runErr)
+		return downloadPath, runErr.Error()
 	}
 
 	return downloadPath, err
@@ -88,10 +96,17 @@ func createVm(vmId string, memory string, cpuCores string, vmName string, networ
 
 	vmCreationArgs := []string{"create", vmId, " --memory ", memory, " --core ", cpuCores, "--name", vmName, "--net0 virtio, bridge=", networkBridge}
 
-	command, err := runner.Run("/usr/sbin/qm", vmCreationArgs...)
+	cmd, err := runner.Command("/usr/sbin/qm", vmCreationArgs...)
 
-	fmt.Println("Command:", command)
+	if err != nil {
+		fmt.Println("Error creating command:", err)
+		return
+	}
 
+	output, err := cmd.Output()
+	fmt.Println("Command output:", string(output))
+
+	fmt.Println(cmd)
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
@@ -105,7 +120,7 @@ func connectHostSSH() (CommandRunner, error) {
 
 	client, err := goph.New("root", "mini-homelab", auth)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Printf("%s", err.Error())
 		log.Fatal(err)
 	}
 
