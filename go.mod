@@ -1,4 +1,4 @@
-module proxmox-direct-config
+module github.com/vorpax/pdc
 
 go 1.25.3
 

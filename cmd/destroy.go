@@ -4,7 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"proxmox-direct-config/internal"
+	"github.com/vorpax/pdc/internal"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

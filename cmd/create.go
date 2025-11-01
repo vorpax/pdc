@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"proxmox-direct-config/internal"
+	"github.com/vorpax/pdc/internal"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -33,6 +33,9 @@ and converts it into a template for future use.`,
 			viper.GetString("proxmox.ssh_key_file"),
 			imageUrl,
 			viper.GetString("proxmox.bridge"),
+			viper.GetString("proxmox.host"),
+			viper.GetString("proxmox.user"),
+			viper.GetString("proxmox.ssh_key"),
 			viper.GetBool("verbose"),
 		)
 
