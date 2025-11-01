@@ -126,9 +126,18 @@ func connectHostSSH() (CommandRunner, error) {
 	return &RemoteRunner{client: client}, nil
 }
 
-func TestCode() {
+func createRunner(useRemote bool) (CommandRunner, error) {
+	if useRemote {
+		return connectHostSSH()
+	}
+	return &LocalRunner{}, nil
+}
 
-	runner, err := connectHostSSH()
+func TestCode() {
+	// Use LocalRunner for local command execution
+
+	runner, err := createRunner(true)
+
 	if err != nil {
 		fmt.Printf("Error connecting to host: %s\n", err)
 		return
