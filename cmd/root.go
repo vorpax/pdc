@@ -13,15 +13,9 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "eztemplate",
-	Short: "Create Proxmox templates with cloud-init images",
-	Long: `eztemplate is a tool to simplify the creation of Proxmox VE templates
-using cloud-init images. It automates the process of downloading cloud images,
-configuring them with cloud-init, and converting them into Proxmox templates
-for quick VM deployment.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Use:   "pdc",
+	Short: "Proxmox Direct Config - Manage Proxmox VE configurations with ease",
+	Long:  `PDC (Proxmox Direct Config) is a command-line tool for better cluster config. `,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -50,8 +44,8 @@ func init() {
 func initConfig() {
 	viper.SetConfigName("config") // name of config file (without extension)
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("/etc/pve-eztemplate/") // path to look for the config file in
-	viper.AddConfigPath("$HOME/.pve-eztemplate")  // call multiple times to add many search paths
+	viper.AddConfigPath("/etc/pve-eztemplate/")  // path to look for the config file in
+	viper.AddConfigPath("$HOME/.pve-eztemplate") // call multiple times to add many search paths
 	viper.AddConfigPath(".")
 
 	viper.AutomaticEnv() // read in environment variables that match

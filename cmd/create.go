@@ -60,8 +60,8 @@ and converts it into a template for future use.`,
 }
 
 func init() {
-	rootCmd.AddCommand(createCmd)
 
+	TemplateCmd.AddCommand(createCmd)
 	// Define flags and bind them to Viper
 	createCmd.Flags().String("vm-id", "", "The unique ID for the new VM/template")
 	viper.BindPFlag("vm.id", createCmd.Flags().Lookup("vm-id"))
