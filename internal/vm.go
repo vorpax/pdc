@@ -120,40 +120,24 @@ func CreateTemplate(vmId, vmName, memory, cpuCores, storagePool, diskSize, ciUse
 	return nil
 }
 
-func downloadTemplate(parsedUrl *url.URL, execContext CommandRunner) (downloadPath string, err string) {
+func downloadTemplate(parsedUrl *url.URL, execContext CommandRunner, verbose bool) (string, string, error) {
 	filename := filepath.Base(parsedUrl.Path)
+	downloadPath := filepath.Join("/tmp", filename)
 
-	// Utiliser le répertoire courant de travail
-	wd, wdErr := os.Getwd()
-
-	if wdErr != nil {
-
-		fmt.Println("Error getting working directory:", err)
-		return
-	}
-
-	downloadPath = filepath.Join(wd, "data", filename)
-
-	fmt.Printf("Filename: %s\n", filename)
-	fmt.Printf("Download path: %s\n", downloadPath)
+	fmt.Println(InfoStyle.Render(fmt.Sprintf("Image will be downloaded to: %s on the remote host", downloadPath)))
 
 	args := []string{"-o", downloadPath, parsedUrl.String()}
-	cmd, cmdErr := execContext.Command("curl", args...)
-
-	if cmdErr != nil {
-		fmt.Println("Error creating command:", cmdErr)
-		return downloadPath, cmdErr.Error()
+	cmd, err := execContext.Command("curl", args...)
+	if err != nil {
+		return "", "", fmt.Errorf("error creating download command: %w", err)
 	}
 
-	output, runErr := cmd.CombinedOutput()
-	fmt.Println("Command output:", string(output))
-
-	if runErr != nil {
-		fmt.Println("Error:", runErr)
-		return downloadPath, runErr.Error()
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", string(output), fmt.Errorf("error running download command: %w", err)
 	}
 
-	return downloadPath, ""
+	return downloadPath, string(output), nil
 }
 
 func createVm(vmId string, memory string, cpuCores string, vmName string, networkBridge string, runner CommandRunner) error {
