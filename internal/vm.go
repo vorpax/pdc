@@ -95,7 +95,7 @@ func createVm(vmId string, memory string, cpuCores string, vmName string, networ
 
 	vmCreationArgs := []string{"create", vmId, "--memory", memory, "--core", cpuCores, "--name", vmName, "--net0", "virtio"}
 
-	cmd, err := runner.Command("qm", vmCreationArgs...)
+	cmd, err := runner.Command("/usr/sbin/qm", vmCreationArgs...)
 	if err != nil {
 		return fmt.Errorf("error creating vm command: %w", err)
 	}
@@ -111,7 +111,7 @@ func createVm(vmId string, memory string, cpuCores string, vmName string, networ
 
 func importDisk(runner CommandRunner, vmId string, imagePath string, storagePool string) error {
 	args := []string{"disk", "import", vmId, imagePath, storagePool}
-	cmd, err := runner.Command("qm", args...)
+	cmd, err := runner.Command("/usr/sbin/qm", args...)
 	if err != nil {
 		return fmt.Errorf("error creating import disk command: %w", err)
 	}
@@ -128,7 +128,7 @@ func importDisk(runner CommandRunner, vmId string, imagePath string, storagePool
 func attachDisk(runner CommandRunner, vmId string, storagePool string) error {
 	scsiDevice := fmt.Sprintf("%s:vm-%s-disk-0", storagePool, vmId)
 	args := []string{"set", vmId, "--scsihw", "virtio-scsi-pci", "--scsi0", scsiDevice}
-	cmd, err := runner.Command("qm", args...)
+	cmd, err := runner.Command("/usr/sbin/qm", args...)
 	if err != nil {
 		return fmt.Errorf("error creating attach disk command: %w", err)
 	}
@@ -145,7 +145,7 @@ func attachDisk(runner CommandRunner, vmId string, storagePool string) error {
 func resizeDisk(runner CommandRunner, vmId string, diskSize string) error {
 	size := fmt.Sprintf("%sG", diskSize)
 	args := []string{"resize", vmId, "scsi0", size}
-	cmd, err := runner.Command("qm", args...)
+	cmd, err := runner.Command("/usr/sbin/qm", args...)
 	if err != nil {
 		return fmt.Errorf("error creating resize disk command: %w", err)
 	}
@@ -162,7 +162,7 @@ func resizeDisk(runner CommandRunner, vmId string, diskSize string) error {
 func configureCloudInit(runner CommandRunner, vmId string, storagePool string) error {
 	cloudInitDevice := fmt.Sprintf("%s:cloudinit", storagePool)
 	args := []string{"set", vmId, "--ide2", cloudInitDevice, "--bootdisk", "scsi0", "--serial0", "socket", "--vga", "serial0"}
-	cmd, err := runner.Command("qm", args...)
+	cmd, err := runner.Command("/usr/sbin/qm", args...)
 	if err != nil {
 		return fmt.Errorf("error creating cloud-init config command: %w", err)
 	}
@@ -178,7 +178,7 @@ func configureCloudInit(runner CommandRunner, vmId string, storagePool string) e
 
 func configureNetwork(runner CommandRunner, vmId string) error {
 	args := []string{"set", vmId, "--ipconfig0", "ip=dhcp"}
-	cmd, err := runner.Command("qm", args...)
+	cmd, err := runner.Command("/usr/sbin/qm", args...)
 	if err != nil {
 		return fmt.Errorf("error creating network config command: %w", err)
 	}
@@ -195,7 +195,7 @@ func configureNetwork(runner CommandRunner, vmId string) error {
 func configureUser(runner CommandRunner, vmId string, user string, sshKeyPath string) error {
 	// This assumes the key path is accessible from the Proxmox host.
 	args := []string{"set", vmId, "--ciuser", user, "--sshkeys", sshKeyPath}
-	cmd, err := runner.Command("qm", args...)
+	cmd, err := runner.Command("/usr/sbin/qm", args...)
 	if err != nil {
 		return fmt.Errorf("error creating user config command: %w", err)
 	}
