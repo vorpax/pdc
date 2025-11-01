@@ -10,13 +10,11 @@ import (
 // templateCmd represents the template command
 var TemplateCmd = &cobra.Command{
 	Use:   "template",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Manage Proxmox VM templates",
+	Long: `Manage Proxmox VM templates by creating or modifying cloud-init ready templates.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+This command provides subcommands for working with Proxmox VM templates,
+including creating new templates from cloud-init images.`,
 }
 
 func init() {

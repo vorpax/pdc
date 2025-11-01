@@ -14,12 +14,13 @@ import (
 var destroyCmd = &cobra.Command{
 	Use:   "destroy",
 	Short: "Destroy an existing Proxmox VM template",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Long: `Destroy an existing Proxmox VM or template by its ID.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+This command will permanently remove the specified VM/template from your Proxmox host.
+Use with caution as this operation cannot be undone.
+
+Example:
+  pdc destroy --vm-id 9000`,
 	Args: cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		destroyTemplate(
