@@ -1,4 +1,4 @@
-module pve-eztemplate
+module proxmox-direct-config
 
 go 1.25.3
 

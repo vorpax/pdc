@@ -33,7 +33,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pve-eztemplate.yaml)")
+	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.proxmox-direct-config.yaml)")
 
 	// Add a verbose flag
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Enable verbose output")
@@ -44,8 +44,8 @@ func init() {
 func initConfig() {
 	viper.SetConfigName("config") // name of config file (without extension)
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("/etc/pve-eztemplate/")  // path to look for the config file in
-	viper.AddConfigPath("$HOME/.pve-eztemplate") // call multiple times to add many search paths
+	viper.AddConfigPath("/etc/proxmox-direct-config/")  // path to look for the config file in
+	viper.AddConfigPath("$HOME/.proxmox-direct-config") // call multiple times to add many search paths
 	viper.AddConfigPath(".")
 
 	viper.AutomaticEnv() // read in environment variables that match

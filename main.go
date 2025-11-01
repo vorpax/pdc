@@ -1,9 +1,9 @@
 /*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
+Copyright © 2025 vorpax <git@vorpax.dev>
 */
 package main
 
-import "pve-eztemplate/cmd"
+import "proxmox-direct-config/cmd"
 
 func main() {
 	cmd.Execute()

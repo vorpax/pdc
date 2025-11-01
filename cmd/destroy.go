@@ -4,7 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"pve-eztemplate/internal"
+	"proxmox-direct-config/internal"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
