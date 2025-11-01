@@ -33,3 +33,5 @@ id_ed25519
 # Old paths
 /scripts/go/eztemplate/build__remote__linux
 /data/
+internal/test.go
+utils/template.sh

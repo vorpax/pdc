@@ -2,7 +2,7 @@ package internal
 
 import (
 	"fmt"
-	"log"
+
 	"net/url"
 	"os/exec"
 	"path/filepath"
@@ -282,33 +282,6 @@ func createRunner(useRemote bool, host, user, sshKeyPath string) (CommandRunner,
 		return connectHostSSH(host, user, sshKeyPath)
 	}
 	return &LocalRunner{}, nil
-}
-
-func TestCode() {
-	// Use LocalRunner for local command execution
-
-	runner, err := createRunner(true)
-
-	if err != nil {
-		fmt.Printf("Error connecting to host: %s\n", err)
-		return
-	}
-
-	cmd, err := runner.Command("hostname")
-	if err != nil {
-		fmt.Printf("Error creating command: %s\n", err)
-		return
-	}
-
-	output, err := cmd.CombinedOutput()
-
-	if err != nil {
-		fmt.Printf("Error executing command: %s\n", err)
-	} else {
-		fmt.Printf("Hostname : %s\n", string(output))
-	}
-
-	// createVm("1001", "2048", "2", "test-vm", "vmbr0", runner)
 }
 
 func DestroyVm(vmId, proxmoxHost, proxmoxUser, proxmoxSSHKey string, verbose bool) (string, error) {
