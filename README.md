@@ -34,8 +34,8 @@ sudo mv pdc /usr/local/bin/
 
 PDC supports configuration via YAML files. The tool searches for `config.yaml` in the following locations (in order):
 
-1. `/etc/pve-eztemplate/`
-2. `$HOME/.pve-eztemplate/`
+1. `/etc/proxmox-direct-config/`
+2. `$HOME/.proxmox-direct-config/`
 3. Current directory (`.`)
 
 ### Configuration File Example

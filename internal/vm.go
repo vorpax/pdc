@@ -303,7 +303,7 @@ func DestroyVm(vmId, proxmoxHost, proxmoxUser, proxmoxSSHKey string, verbose boo
 	}
 
 	fmt.Println(VerboseStyle.Render(fmt.Sprintf("Destroying VM %s...", vmId)))
-	fmt.Println(VerboseStyle.Render(fmt.Sprintf("destroy command output: *", output)))
+	fmt.Println(VerboseStyle.Render(fmt.Sprintf("destroy command output: %s", output)))
 
 	fmt.Println(InfoStyle.Render(fmt.Sprintf("VM %s destroyed.", vmId)))
 	return string(output), nil
