@@ -88,12 +88,12 @@ func downloadTemplate(parsedUrl *url.URL, execContext CommandRunner) (downloadPa
 		return downloadPath, runErr.Error()
 	}
 
-	return downloadPath, err
+	return downloadPath, ""
 }
 
 func createVm(vmId string, memory string, cpuCores string, vmName string, networkBridge string, runner CommandRunner) {
 
-	vmCreationArgs := []string{"create", vmId, " --memory ", memory, " --core ", cpuCores, "--name", vmName, "--net0 virtio, bridge=", networkBridge}
+	vmCreationArgs := []string{"create", vmId, " --memory ", memory, " --core ", cpuCores, "--name", vmName, "--net0 virtio"}
 
 	cmd, err := runner.Command("/usr/sbin/qm", vmCreationArgs...)
 
@@ -143,13 +143,19 @@ func TestCode() {
 		return
 	}
 
-	output, err := runner.Run("hostname")
+	cmd, err := runner.Command("hostname")
+	if err != nil {
+		fmt.Printf("Error creating command: %s\n", err)
+		return
+	}
+
+	output, err := cmd.CombinedOutput()
 
 	if err != nil {
 		fmt.Printf("Error executing command: %s\n", err)
 	} else {
-		fmt.Printf("Hostname : %s\n", output)
+		fmt.Printf("Hostname : %s\n", string(output))
 	}
 
-	createVm("1000", "2048", "2", "test-vm", "vmbr0", runner)
+	createVm("1001", "2048", "2", "test-vm", "vmbr0", runner)
 }
